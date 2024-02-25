@@ -8,7 +8,8 @@ The project contains a set of examples of how to display our payment page in an 
  - Use createPaymentRequest() function in CreatpaymentApiViewController to call the Api 
  - Define Api method in PaymentRequestManager Class
  - To open or dismiss the webkit in WebURLHandler class
- 
+
+    ![CodeSnippetMobile](docs/codesnippet-mobile.png)
  
 ## Requirements
 
