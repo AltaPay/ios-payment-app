@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1]
+- Add support for Checkout API
+- Add Demo app for testing
+
 ## [1.0.0]
 - First release of the App
 
