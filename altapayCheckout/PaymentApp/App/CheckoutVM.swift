@@ -25,7 +25,7 @@ final class CheckoutViewModel {
 
         do {
             let order = Order(
-                orderId: "RonnieCheckoutAPITest",
+                orderId: "OrderID-\(UUID().uuidString)",
                 amount: .init(value: 2.0, currency: "DKK"),
                 orderLines: [
                     .init(itemId: "123981239", description: "Chaos Emerald", quantity: 1, unitPrice: 1),
@@ -57,15 +57,25 @@ final class CheckoutViewModel {
             
             let config = Configuration(
                 paymentType: "PAYMENT",
-                paymentDisplayType: "REDIRECT",
                 bodyFormat: "JSON",
                 autoCapture: false,
                 country: "DK",
                 language: "da"
             )
 
+            let callBackSuccess = Callback(type: "URL", value: "https://example.com")
+            let callBackFailure = Callback(type: "URL", value: "https://example.com")
+
+            let callbacks = Callbacks(
+                success: callBackSuccess,
+                failure: callBackFailure,
+                redirect: "https://example.com",
+                notification: "https://example.com"
+            )
+
             let response = try await client.startCheckout(
                 order: order,
+                callBacks: callbacks,
                 configuration: config
             )
             sessionId = response.sessionId
