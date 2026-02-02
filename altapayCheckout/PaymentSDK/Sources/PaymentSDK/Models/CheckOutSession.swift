@@ -9,7 +9,7 @@ public struct CheckoutSessionResponse: Decodable, Sendable {
     public let sessionId: String
     public let context: Context
     public let order: Order
-    //    let callbacks: Callbacks
+    public let callbacks: Callbacks
     public let configuration: ConfigurationResponse
 }
 

@@ -47,15 +47,16 @@ public struct PaymentInitiationResponse: Decodable {
 
 public struct Configuration: Codable, Sendable {
     public let paymentType: String
-    public let paymentDisplayType: String?
+    /// - Note:
+    ///  `paymentDisplayType` must be set to `REDIRECT` for this functionality to work.
+    public let paymentDisplayType: String = "REDIRECT"
     public let bodyFormat: String
     public let autoCapture: Bool
     public let country: String
     public let language: String
     
-    public init(paymentType: String, paymentDisplayType: String?, bodyFormat: String, autoCapture: Bool, country: String, language: String) {
+    public init(paymentType: String, bodyFormat: String, autoCapture: Bool, country: String, language: String) {
         self.paymentType = paymentType
-        self.paymentDisplayType = paymentDisplayType
         self.bodyFormat = bodyFormat
         self.autoCapture = autoCapture
         self.country = country

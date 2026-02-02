@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6B4740672F13ACA600D2C2F6 /* PaymentSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 6B4740662F13ACA600D2C2F6 /* PaymentSDK */; };
+		6B596DA32F2682CC000DFB8D /* WebUI in Frameworks */ = {isa = PBXBuildFile; productRef = 6B596DA22F2682CC000DFB8D /* WebUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6B4740672F13ACA600D2C2F6 /* PaymentSDK in Frameworks */,
+				6B596DA32F2682CC000DFB8D /* WebUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +73,7 @@
 			name = PaymentApp;
 			packageProductDependencies = (
 				6B4740662F13ACA600D2C2F6 /* PaymentSDK */,
+				6B596DA22F2682CC000DFB8D /* WebUI */,
 			);
 			productName = "Payment-App-iOS";
 			productReference = 6B1221562EFD4479001117ED /* PaymentApp.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				6B4740652F13ACA600D2C2F6 /* XCLocalSwiftPackageReference "PaymentSDK" */,
+				6B596DA12F2682CC000DFB8D /* XCRemoteSwiftPackageReference "WebUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6B1221572EFD4479001117ED /* Products */;
@@ -351,10 +355,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		6B596DA12F2682CC000DFB8D /* XCRemoteSwiftPackageReference "WebUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cybozu/WebUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		6B4740662F13ACA600D2C2F6 /* PaymentSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PaymentSDK;
+		};
+		6B596DA22F2682CC000DFB8D /* WebUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B596DA12F2682CC000DFB8D /* XCRemoteSwiftPackageReference "WebUI" */;
+			productName = WebUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

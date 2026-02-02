@@ -7,11 +7,14 @@ import Foundation
 
 public struct CheckoutRequest: Codable, Sendable {
     public let order: Order
-    //    let callbacks: Callbacks
+    public let callbacks: Callbacks
     public let configuration: Configuration
     
-    public init(order: Order, configuration: Configuration) {
+    public init(order: Order,
+                callBacks: Callbacks,
+                configuration: Configuration) {
         self.order = order
+        self.callbacks = callBacks
         self.configuration = configuration
     }
 }
@@ -86,15 +89,31 @@ public struct Address: Codable, Sendable {
     }
 }
 
-public struct Callbacks: Codable {
+public struct Callbacks: Codable, Sendable {
     public let success: Callback
     public let failure: Callback
     public let redirect: String
     public let notification: String
-    public let bodyFormat: String?
+
+    public init(
+        success: Callback,
+        failure: Callback,
+        redirect: String,
+        notification: String,
+    ) {
+        self.success = success
+        self.failure = failure
+        self.redirect = redirect
+        self.notification = notification
+    }
 }
 
-public struct Callback: Codable {
+public struct Callback: Codable, Sendable {
     public let type: String
     public let value: String
+
+    public init(type: String, value: String) {
+        self.type = type
+        self.value = value
+    }
 }

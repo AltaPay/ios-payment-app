@@ -6,6 +6,7 @@
 import SwiftUI
 import Observation
 import PaymentSDK
+import WebUI
 import WebKit
 
 struct ContentView: View {
@@ -15,22 +16,20 @@ struct ContentView: View {
     @State var spvm: SelectedPaymentMethodViewModel
     @State private var showPaymentWebView = false
     @State private var paymentURL: URL?
-    @State private var page: WebPage = {
-        var config = NavigationDecider { result in
-            switch result {
-                case .success(let url):
-                    print("Payment successful: \(url)")
-                    // Handle success - you might want to show an alert or navigate
-                case .failure(let error):
-                    print("Payment failed: \(error.localizedDescription)")
-                    // Handle failure - show error to user
-                case .cancelled:
-                    print("Payment cancelled")
-                    // Handle cancellation
-            }
-        }
-        return WebPage(navigationDecider: config)
-    }()
+    let configuration: WKWebViewConfiguration!
+    init(cvm: CheckoutViewModel, pvm: PaymentMethodsViewModel, spvm: SelectedPaymentMethodViewModel) {
+        self._cvm = State(initialValue: cvm)
+        self._pvm = State(initialValue: pvm)
+        self._spvm = State(initialValue: spvm)
+
+        configuration = WKWebViewConfiguration()
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+        configuration.allowsInlineMediaPlayback = true
+        configuration.allowsAirPlayForMediaPlayback = true
+        configuration.allowsPictureInPictureMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+    }
 
     var body: some View {
         NavigationStack {
@@ -107,10 +106,12 @@ struct ContentView: View {
         .sheet(isPresented: $showPaymentWebView) {
             if let url = spvm.redirectURL {
                 NavigationStack {
-                    WebView(page)
-                        .onAppear {
-                            page.load(url)
-                    }
+                    WebView(
+                        request: URLRequest(url: url),
+                        configuration: configuration
+                    )
+                    .uiDelegate(MyUIDelegate())
+                    .navigationDelegate(MyNavigationDelegate())
                     .navigationTitle("Payment")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
@@ -165,6 +166,14 @@ private func row(_ method: PaymentMethod) -> some View {
     }
 }
 
+final class MyUIDelegate: NSObject, WKUIDelegate {}
+
+final class MyNavigationDelegate: NSObject, WKNavigationDelegate {
+    func webView(_ webView: WKWebView,
+                 didFinish navigation: WKNavigation!) {
+        print(webView.url)
+    }
+}
 
 #Preview {
     // Preview with mock client - replace with your test credentials
