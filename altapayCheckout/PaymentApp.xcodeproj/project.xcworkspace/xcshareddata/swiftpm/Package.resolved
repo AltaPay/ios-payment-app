@@ -1,0 +1,15 @@
+{
+  "originHash" : "e54359badd67a024c9c21bd6a20f3fbf70fdb2ace265878414aa946a8da3ef61",
+  "pins" : [
+    {
+      "identity" : "webui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cybozu/WebUI.git",
+      "state" : {
+        "revision" : "d1408d9ad8056f4619b71f06a0b0ba1ff553f3a3",
+        "version" : "4.2.1"
+      }
+    }
+  ],
+  "version" : 3
+}
