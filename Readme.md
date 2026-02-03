@@ -28,14 +28,12 @@ The project contains a set of examples of how to display our payment page in an 
 - iOS 16.0 or later
 - Swift 5.9 or later
 - Xcode 16.0 or later
-- Valid AltaPay API credentials (username and password)
+- Valid PaymentSDK API credentials (username and password)
 - Network access (HTTPS)
-
-### Usage
 
 #### Swift Package Manager
 
-Add the following to your `Package.swift` file:
+Add the following to your `Package.swift` file or add the git url to Xcode dependencies
 
 ```swift
 dependencies: [
@@ -48,163 +46,134 @@ Or add it through Xcode:
 2. Enter the repository URL
 3. Select the version or branch
 
-#### Installation
+#### As an Added Framework
 
 1. Clone this repository
-2. Add `AltaPaySDK` to your Xcode project
-3. Link the framework in your target's "Frameworks, Libraries, and Embedded Content"
+2. Add `PaymentSDK` to your Xcode project
 
 ### 1. Initialize the SDK
 
 In your app's initialization (e.g., `App` struct or `AppDelegate`):
 
 ```swift
-import AltaPaySDK
+// import the SDK
+import PaymentSDK
 
-@main
-struct MyApp: App {
-    init() {
-        do {
-            try AltaPaySDK.initialize(
-                baseURL: "https://testgateway.altapaysecure.com/",
-                username: "your_username",
-                password: "your_password"
-            )
-        } catch {
-            print("Failed to initialize SDK: \(error)")
-        }
-    }
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
+/// Initialize the payment client with credentials.
+/// - Parameters:
+///   - username: API username
+///   - password: API password
+///   - baseURL: Base URL for the payment gateway (e.g., "https://testgateway.altapaysecure.com/")
+/// public init(username: String, password: String, baseURL: URL)
+
+let initalizedClient = PaymentClient(
+    username: username,
+    password: password,
+    baseURL: baseURL
+)
 ```
 
 ### 2. Create a Payment Session
+Use the initalized client to create a session, the sessionID is used to show available payment methods
 
 ```swift
-let session = try PaymentSession()
-```
+/// Creates a new checkout session.
+/// - Parameters:
+///   - order: Order details including items, customer, and amount
+///   - callbacks: Callbacks details including redirect, success, and failure...
+///   - configuration: Payment configuration (type, country, language, etc.)
+/// - Returns: Checkout session response containing session ID
+/// - Throws: `PaymentSDKError` if the operation fails
+/// public func startCheckout(order: Order, callBacks: Callbacks, configuration: Configuration) async throws -> CheckoutSessionResponse
 
-### 3. Authenticate
-
-```swift
-let token = try await session.authenticate()
-```
-
-### 4. Create a Checkout Session
-
-```swift
 let order = Order(
-    orderId: "ORDER-123",
-    amount: Amount(value: 100.0, currency: "USD"),
+    orderId: "OrderID-\(UUID().uuidString)",
+    amount: .init(value: 2.0, currency: "DKK"),
     orderLines: [
-        OrderLine(
-            itemId: "ITEM-1",
-            description: "Product Name",
-            quantity: 1,
-            unitPrice: 100.0
-        )
+        .init(itemId: "123981239", description: "Chaos Emerald", quantity: 1, unitPrice: 1),
+        .init(itemId: "123981240", description: "Delivery", quantity: 1, unitPrice: 1)
     ],
     customer: Customer(
         firstName: "John",
         lastName: "Doe",
-        email: "john@example.com",
-        billingAddress: Address(
-            street: "123 Main St",
-            city: "New York",
-            country: "US",
-            zipCode: "10001"
+        email: "test@example.com",
+        billingAddress: .init(
+            street: "Nygaardsvej 42",
+            city: "Copenhagen",
+            country: "DK",
+            zipCode: "1040"
         ),
-        shippingAddress: Address(
-            street: "123 Main St",
-            city: "New York",
-            country: "US",
-            zipCode: "10001"
+        shippingAddress: .init(
+            street: "Nygaardsvej 42",
+            city: "Copenhagen",
+            country: "DK",
+            zipCode: "1040"
         )
-    )
+    ),
+    transactionInfo: [
+        "additionalProp1": "Additional Payment information test 1",
+        "additionalProp2": "Additional Payment information test 2",
+        "additionalProp3": "Additional Payment information test 3"
+    ]
 )
 
-let config = PaymentConfiguration(
+let config = Configuration(
     paymentType: "PAYMENT",
-    paymentDisplayType: "REDIRECT",
-    country: "US",
-    language: "en"
+    bodyFormat: "JSON",
+    autoCapture: false,
+    country: "DK",
+    language: "da"
 )
 
-let checkoutSession = try await session.createCheckoutSession(
+let callBackSuccess = Callback(type: "URL", value: "https://example.com")
+let callBackFailure = Callback(type: "URL", value: "https://example.com")
+
+let callbacks = Callbacks(
+    success: callBackSuccess,
+    failure: callBackFailure,
+    redirect: "https://example.com",
+    notification: "https://example.com"
+)
+
+let response = try await initalizedClient.startCheckout(
     order: order,
+    callBacks: callbacks,
     configuration: config
 )
+let sessionId = response.sessionId
 ```
 
-### 5. Fetch Payment Methods
+### 3. Fetch Payment Methods
+Display fetched payment options for user to select
 
 ```swift
-let methods = try await session.fetchPaymentMethods(
-    sessionId: checkoutSession.sessionId
-)
+/// Fetches available payment methods for a checkout session.
+/// - Parameter sessionId: The session ID from `startCheckout`
+/// - Returns: Array of available payment methods
+/// - Throws: `PaymentSDKError` if the operation fails
+/// public func getPaymentMethods(sessionId: String) async throws -> [PaymentMethod]
+
+let paymentMethods = try await initalizedClient.getPaymentMethods(sessionId: sessionId)
 ```
 
-### 6. Initiate Payment
+### 4. Initiate Payment
+Initiates payment with the selected payment method.
 
 ```swift
-let redirectURL = try await session.initiatePayment(
-    methodId: selectedMethod.id,
-    sessionId: checkoutSession.sessionId
-)
+/// - Parameters:
+///   - methodId: ID of the selected payment method
+///   - sessionId: The session ID from `startCheckout`
+/// - Returns: Redirect URL for payment processing
+/// - Throws: `PaymentSDKError` if the operation fails
+/// public func initiatePayment(methodId: String, sessionId: String) async throws -> URL
+
+let redirectURL = try await initalizedClient.initiatePayment(methodId: paymentMethods.id, sessionId: sessionId)
 ```
 
-### 7. Display Payment WebView
-
-```swift
-import SwiftUI
-import AltaPaySDK
-
-struct PaymentView: View {
-    let redirectURL: URL
-    
-    var body: some View {
-        PaymentWebView(
-            url: redirectURL,
-            onSuccess: { url in
-                print("Payment successful!")
-            },
-            onFailure: { url in
-                print("Payment failed!")
-            }
-        )
-    }
-}
-```
+### 5. Display Payment WebView
+use native webview to determine the callback through the redirectURL from step 4.
 
 ![CodeSnippetMobileCheckoutAPI](docs/Altapay-MobileApp-Checkout-Setup.svg)
-
-## API Reference
-
-### AltaPaySDK
-
-Main SDK entry point.
-
-#### Methods
-
-- `initialize(baseURL:username:password:version:)` - Initialize the SDK with credentials
-- `shared` - Shared singleton instance
-- `isInitialized` - Check if SDK has been initialized
-
-### PaymentSession
-
-Main interface for payment operations.
-
-#### Methods
-
-- `authenticate() async throws -> String` - Authenticate and get access token
-- `createCheckoutSession(order:configuration:) async throws -> CheckoutSession` - Create checkout session
-- `fetchPaymentMethods(sessionId:) async throws -> [PaymentMethod]` - Get available payment methods
-- `initiatePayment(methodId:sessionId:) async throws -> URL` - Initiate payment and get redirect URL
 
 ### Models
 
@@ -216,40 +185,6 @@ Main interface for payment operations.
 - `PaymentMethod` - Payment method information
 - `PaymentConfiguration` - Payment configuration
 - `CheckoutSession` - Checkout session response
-
-### PaymentWebView
-
-SwiftUI view for displaying payment redirects.
-
-#### Parameters
-
-- `url: URL` - Payment redirect URL
-- `onSuccess: ((URL) -> Void)?` - Callback when payment succeeds
-- `onFailure: ((URL) -> Void)?` - Callback when payment fails
-- `onRedirect: ((URL) -> Void)?` - Callback for any redirect
-
-## Error Handling
-
-The SDK uses `AltaPayError` enum for error handling:
-
-```swift
-do {
-    let session = try PaymentSession()
-    // Use session...
-} catch let error as AltaPayError {
-    switch error {
-    case .notInitialized:
-        // SDK not initialized
-    case .authenticationFailed(let message):
-        // Authentication failed
-    case .networkError(let underlyingError):
-        // Network error
-    // ... other cases
-    }
-} catch {
-    // Other errors
-}
-```
 
 ## Demo App
 
