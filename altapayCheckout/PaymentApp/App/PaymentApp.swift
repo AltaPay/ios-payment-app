@@ -8,7 +8,7 @@ import PaymentSDK
 
 let username = "demo@example.com"
 let password = "userpass"
-let baseURLString = "https://testgateway.altapaysecure.com/"
+let baseURL = "https://testgateway.altapaysecure.com/"
 
 
 @main
@@ -21,8 +21,8 @@ struct PaymentApp: App {
 
     init() {
         
-        guard let baseURL = URL(string: baseURLString) else {
-            fatalError("Invalid base URL: \(baseURLString)")
+        guard let baseURL = URL(string: baseURL) else {
+            fatalError("Invalid base URL: \(baseURL)")
         }
         
         self.client = PaymentClient(

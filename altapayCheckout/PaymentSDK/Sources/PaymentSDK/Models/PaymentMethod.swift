@@ -50,14 +50,12 @@ public struct Configuration: Codable, Sendable {
     /// - Note:
     ///  `paymentDisplayType` must be set to `REDIRECT` for this functionality to work.
     public let paymentDisplayType: String = "REDIRECT"
-    public let bodyFormat: String
     public let autoCapture: Bool
     public let country: String
     public let language: String
     
-    public init(paymentType: String, bodyFormat: String, autoCapture: Bool, country: String, language: String) {
+    public init(paymentType: String, autoCapture: Bool, country: String, language: String) {
         self.paymentType = paymentType
-        self.bodyFormat = bodyFormat
         self.autoCapture = autoCapture
         self.country = country
         self.language = language
