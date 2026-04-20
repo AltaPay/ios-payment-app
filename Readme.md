@@ -66,7 +66,7 @@ import PaymentSDK
 ///   - baseURL: Base URL for the payment gateway (e.g., "https://testgateway.altapaysecure.com/")
 /// public init(username: String, password: String, baseURL: URL)
 
-let initalizedClient = PaymentClient(
+let client = PaymentClient(
     username: username,
     password: password,
     baseURL: baseURL
@@ -119,7 +119,6 @@ let order = Order(
 
 let config = Configuration(
     paymentType: "PAYMENT",
-    bodyFormat: "JSON",
     autoCapture: false,
     country: "DK",
     language: "da"
@@ -132,10 +131,11 @@ let callbacks = Callbacks(
     success: callBackSuccess,
     failure: callBackFailure,
     redirect: "https://example.com",
-    notification: "https://example.com"
+    notification: "https://example.com",
+    bodyFormat: "JSON" // Accepted values: XML (default), JSON
 )
 
-let response = try await initalizedClient.startCheckout(
+let response = try await client.startCheckout(
     order: order,
     callBacks: callbacks,
     configuration: config
@@ -153,25 +153,50 @@ Display fetched payment options for user to select
 /// - Throws: `PaymentSDKError` if the operation fails
 /// public func getPaymentMethods(sessionId: String) async throws -> [PaymentMethod]
 
-let paymentMethods = try await initalizedClient.getPaymentMethods(sessionId: sessionId)
+let paymentMethods = try await client.getPaymentMethods(sessionId: sessionId)
 ```
 
-### 4. Initiate Payment
-Initiates payment with the selected payment method.
+### 4. Execute Payment
+Upon the user clicking the **Pay** button after selecting a payment method, the execution flow depends on the selected method.
 
-```swift
-/// - Parameters:
-///   - methodId: ID of the selected payment method
-///   - sessionId: The session ID from `startCheckout`
-/// - Returns: Redirect URL for payment processing
-/// - Throws: `PaymentSDKError` if the operation fails
-/// public func initiatePayment(methodId: String, sessionId: String) async throws -> URL
+#### General Payment Methods
+1.  **Initiate via SDK**: Use the SDK to initiate the payment and obtain the redirect URL.
+    ```swift
+    /// Initiates payment with the selected payment method.
+    /// - Parameters:
+    ///   - methodId: ID of the selected payment method
+    ///   - sessionId: The session ID from `startCheckout`
+    /// - Returns: Redirect URL for payment processing
+    /// - Throws: `PaymentSDKError` if the operation fails
+    /// public func initiatePayment(methodId: String, sessionId: String) async throws -> URL
 
-let redirectURL = try await initalizedClient.initiatePayment(methodId: paymentMethods.id, sessionId: sessionId)
+    let redirectURL = try await client.initiatePayment(methodId: paymentMethod.id, sessionId: sessionId)
+    ```
+2.  **Display WebView**: Initialize a native `WKWebView` and load the returned `redirectURL`.
+
+#### Apple Pay Handling
+If the selected method is Apple Pay, the flow is handled via a merchant-controlled web page:
+1.  **Initialize a `WKWebView`**: Create a native webview to handle the payment flow.
+2.  **Load Merchant URL**: The WebView should load a specific URL controlled by the merchant.
+3.  **Render and Bind**: The merchant page must render the Apple Pay button and bind the next action to it using our [Javascript SDK](https://documentation.altapay.com/v2/Checkout-API/Integration/#js-sdk).
+
+**Javascript Integration (Merchant Page)**
+```javascript
+// Initialize AltaPay with the session token and ID
+const session = AltaPay.initiate(token, sessionId);
+
+// Bind this to the Apple Pay button click
+session.initiatePayment(paymentMethodId);
 ```
 
-### 5. Display Payment WebView
-use native webview to determine the callback through the redirectURL from step 4.
+### 5. Apple Pay Native Integration
+Alternatively, you can integrate Apple Pay natively within your app. Refer to the [Payment Flow Initialization](https://documentation.altapay.com/v2/Checkout-API/Integration/#payment-flow-initialization) for the underlying API details.
+
+1.  **POST Session**: Create a payment session via the SDK.
+2.  **GET session/payment-methods**: Fetch available payment methods and identify Apple Pay.
+3.  **Use Apple Pay Meta Data**: Use the provided Apple Pay metadata to interact directly with the Apple Pay framework in your native Swift code.
+4.  **Process Payment**: Once the Apple Pay authorization is successful, call the native initiate endpoint to finalize the payment:
+    *   **POST** `/session/{id}/initiate`
 
 ![CodeSnippetMobileCheckoutAPI](docs/Altapay-MobileApp-Checkout-Setup.svg)
 
