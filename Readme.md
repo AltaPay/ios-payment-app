@@ -180,14 +180,14 @@ If the selected method is Apple Pay, the flow is handled via a merchant-controll
 2.  **Load Merchant URL**: The WebView should load a specific URL controlled by the merchant.
 3.  **Render and Bind**: The merchant page must render the Apple Pay button and bind the next action to it using our [Javascript SDK](https://documentation.altapay.com/v2/Checkout-API/Integration/#js-sdk).
 
-**Javascript Integration (Merchant Page)**
-```javascript
-// Initialize AltaPay with the session token and ID
-const session = AltaPay.initiate(token, sessionId);
+    **Javascript Integration (Merchant Page)**
+    ```javascript
+    // Initialize AltaPay with the session token and ID
+    const session = AltaPay.initiate(token, sessionId);
 
-// Bind this to the Apple Pay button click
-session.initiatePayment(paymentMethodId);
-```
+    // Bind this to the Apple Pay button click
+    session.initiatePayment(paymentMethodId);
+    ```
 
 ### 5. Apple Pay Native Integration
 Alternatively, you can integrate Apple Pay natively within your app. Refer to the [Payment Flow Initialization](https://documentation.altapay.com/v2/Checkout-API/Integration/#payment-flow-initialization) for the underlying API details.
