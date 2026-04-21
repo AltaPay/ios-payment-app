@@ -196,7 +196,7 @@ Alternatively, you can integrate Apple Pay natively within your app. Refer to th
 2.  **GET session/{sessionId}/payment-methods**: Fetch available payment methods and identify Apple Pay.
 3.  **Use Apple Pay Meta Data**: Use the provided Apple Pay metadata to interact directly with the Apple Pay framework in your native Swift code.
 4.  **Process Payment**: Once the Apple Pay authorization is successful, call the native initiate endpoint to finalize the payment:
-    *   **POST** `/session/{id}/initiate`
+    *   **POST** `/payment/{paymentId}/authorization`
 
 ![CodeSnippetMobileCheckoutAPI](docs/Altapay-MobileApp-Checkout-Setup.svg)
 
