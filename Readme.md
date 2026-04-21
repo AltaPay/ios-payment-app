@@ -195,27 +195,30 @@ Alternatively, you can integrate Apple Pay natively within your app. Refer to th
 1.  **POST Session**: Create a payment session via the SDK.
 2.  **GET session/{sessionId}/payment-methods**: Fetch available payment methods and identify Apple Pay.
 3.  **Use Apple Pay Meta Data**: Use the provided Apple Pay metadata to interact directly with the Apple Pay framework in your native Swift code.
-4.  **Process Payment**: Once the Apple Pay authorization is successful, call the native initiate endpoint to finalize the payment:
-    *   **POST** `/payment/{paymentId}/authorization`
 
     When initialising the payment please call
 
     *   **POST** `/payment` to let us know that customer started a payment
-example of the curl to be done
-    ```
-    curl --location --request POST 'https://{checkout-api-url}.altapaysecure.com/checkout/v1/api/payment' \
-    --header 'Authorization: Bearer $TOKEN' \
-    --header 'Content-Type: application/json' \
-    --data '{
-        "paymentMethodId" : "7ab4889b-6b91-4a56-ba10-efc97026e5e6",
-        "sessionId": "2171b42e-dc4e-4a56-9fca-7de6f6d60625",
-        "requestData": {
-            "applePayRequestData": {
-                "source": "PASSKIT"
+
+        Example request:
+
+        ```
+        curl --location --request POST 'https://{checkout-api-url}.altapaysecure.com/checkout/v1/api/payment' \
+        --header 'Authorization: Bearer $TOKEN' \
+        --header 'Content-Type: application/json' \
+        --data '{
+            "paymentMethodId" : "7ab4889b-6b91-4a56-ba10-efc97026e5e6",
+            "sessionId": "2171b42e-dc4e-4a56-9fca-7de6f6d60625",
+            "requestData": {
+                "applePayRequestData": {
+                    "source": "PASSKIT"
+                }
             }
-        }
-    }'
-    ```
+        }'
+        ```
+4.  **Process Payment**: Once the Apple Pay authorization is successful, call the native initiate endpoint to finalize the payment:
+    *   **POST** `/payment/{paymentId}/authorization`
+
 ![CodeSnippetMobileCheckoutAPI](docs/Altapay-MobileApp-Checkout-Setup.svg)
 
 ### Models
