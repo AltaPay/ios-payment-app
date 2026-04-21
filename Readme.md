@@ -193,7 +193,7 @@ If the selected method is Apple Pay, the flow is handled via a merchant-controll
 Alternatively, you can integrate Apple Pay natively within your app. Refer to the [Payment Flow Initialization](https://documentation.altapay.com/v2/Checkout-API/Integration/#payment-flow-initialization) for the underlying API details.
 
 1.  **POST Session**: Create a payment session via the SDK.
-2.  **GET session/payment-methods**: Fetch available payment methods and identify Apple Pay.
+2.  **GET session/{sessionId}/payment-methods**: Fetch available payment methods and identify Apple Pay.
 3.  **Use Apple Pay Meta Data**: Use the provided Apple Pay metadata to interact directly with the Apple Pay framework in your native Swift code.
 4.  **Process Payment**: Once the Apple Pay authorization is successful, call the native initiate endpoint to finalize the payment:
     *   **POST** `/session/{id}/initiate`
