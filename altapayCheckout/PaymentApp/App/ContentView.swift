@@ -142,10 +142,20 @@ private func row(_ method: PaymentMethod) -> some View {
         if let logo = method.logoUrl,
            let url = URL(string: logo),
            !logo.contains("null") {
-            AsyncImage(url: url) { image in
-                image.resizable()
-            } placeholder: {
-                ProgressView()
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                case .success(let image):
+                    image.resizable()
+                        .scaledToFit()
+                case .failure(let error):
+                    let _ = print("Failed to load logo for \(method.name) from \(url): \(error.localizedDescription)")
+                    Image(systemName: "photo")
+                        .foregroundColor(.gray)
+                @unknown default:
+                    EmptyView()
+                }
             }
             .frame(width: 40, height: 40)
         }
@@ -160,9 +170,6 @@ private func row(_ method: PaymentMethod) -> some View {
         }
 
         Spacer()
-
-        Text(method.type)
-            .font(.caption)
     }
 }
 
@@ -180,7 +187,7 @@ final class MyNavigationDelegate: NSObject, WKNavigationDelegate {
     let client = PaymentClient(
         username: username,
         password: password,
-        baseURL: URL(string: baseURLString)!
+        baseURL: URL(string: baseURL)!
     )
     
     let cvm = CheckoutViewModel(client: client)

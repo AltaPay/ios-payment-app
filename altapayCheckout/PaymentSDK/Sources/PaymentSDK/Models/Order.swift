@@ -94,17 +94,20 @@ public struct Callbacks: Codable, Sendable {
     public let failure: Callback
     public let redirect: String
     public let notification: String
+    public let bodyFormat: String
 
     public init(
         success: Callback,
         failure: Callback,
         redirect: String,
         notification: String,
+        bodyFormat: String
     ) {
         self.success = success
         self.failure = failure
         self.redirect = redirect
         self.notification = notification
+        self.bodyFormat = bodyFormat
     }
 }
 

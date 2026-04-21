@@ -57,7 +57,6 @@ final class CheckoutViewModel {
             
             let config = Configuration(
                 paymentType: "PAYMENT",
-                bodyFormat: "JSON",
                 autoCapture: false,
                 country: "DK",
                 language: "da"
@@ -70,7 +69,8 @@ final class CheckoutViewModel {
                 success: callBackSuccess,
                 failure: callBackFailure,
                 redirect: "https://example.com",
-                notification: "https://example.com"
+                notification: "https://example.com",
+                bodyFormat: "JSON"
             )
 
             let response = try await client.startCheckout(

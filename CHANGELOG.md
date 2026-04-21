@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2]
+- Update documentation to include the steps for integrating Apple Pay
+- Minor bug fixes
+
 ## [1.0.1]
 - Add support for Checkout API
 - Add Demo app for testing
