@@ -143,6 +143,39 @@ let response = try await client.startCheckout(
 let sessionId = response.sessionId
 ```
 
+## Handling Payment Callbacks
+
+### CallbackRedirect (`redirect`)
+
+[`callbacks.redirect`](https://documentation.altapay.com/v2/Checkout-API/Integration/#configuring-payment-status-callbacks) tells Checkout where to send the customer back to once they're done interacting with the payment method (e.g. Bancontact). It can be an `HTTPS` URL or a custom app protocol, and Universal Links are recommended over a bare custom scheme.
+
+Which flow applies is controlled by `isNativeFlow`, a boolean root-level session parameter on `startCheckout`, not by what `redirect` is set to (`redirect` itself is used differently in each flow, described below):
+
+```swift
+let response = try await client.startCheckout(
+    order: order,
+    callBacks: callbacks,
+    configuration: config,
+    isNativeFlow: true
+)
+```
+
+- **Web-Based Flow (`isNativeFlow = false`):** the payment page renders in a `WKWebView`. Once the payment method finishes, the Gateway calls `callback_ok`/`callback_failure` server-to-server, then the Gateway navigates the WebView to `redirect`. On iOS, intercept this in your navigation delegate (see `NavigationDecider` in `PaymentWebView.swift`) and dismiss the WebView:
+
+  ```swift
+  let redirectURL = "https://merchant.example.com/app-link"
+
+  func handleNavigation(to url: URL) {
+      if url.absoluteString.hasPrefix(redirectURL) {
+          dismissWebView()
+      }
+  }
+  ```
+
+- **Native App Flow (`isNativeFlow = true`):** Checkout skips the payment page entirely for app-based payment methods and redirects the customer straight into the payment method's app, using `AppUrl` (a field returned in the Merchant API's `createPaymentRequest` response that, when POSTed to with device info, returns a native redirect URL, e.g. `mobilepayonline-test://...`), instead of passing `CallbackRedirect` through to the Merchant API's `callback_redirect`. The payment method's app then redirects back via `redirect`, which requires a registered Universal Link (an `applinks` entry in your app's Associated Domains entitlement, backed by an `apple-app-site-association` file on your domain).
+
+> When integrating directly against the Merchant API, do not pass an app deep link as [`callback_redirect`](https://documentation.altapay.com/Content/Ecom/Payment%20Pages/Payment%20Page%20Redirect.htm): that page is shown while the customer is being redirected to a third party (e.g. 3-D Secure) and "should not do anything except tell the customer that they are being redirected." Forms and meta tags are stripped from it, so it can't even serve as a redirect target itself.
+
 ### 3. Fetch Payment Methods
 Display fetched payment options for user to select
 
