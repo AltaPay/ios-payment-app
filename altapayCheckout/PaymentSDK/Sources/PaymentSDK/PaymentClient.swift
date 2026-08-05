@@ -48,11 +48,13 @@ public actor PaymentClient {
     ///   - order: Order details including items, customer, and amount
     ///   - callbacks: Callbacks details including success, failure, and redirect...
     ///   - configuration: Payment configuration (type, country, language, etc.)
+    ///   - isNativeFlow: true selects the Native App Flow, where Checkout redirects straight into
+    ///     the payment method's app instead of rendering a payment page. Defaults to false/unset (Web-Based Flow).
     /// - Returns: Checkout session response containing session ID
     /// - Throws: `PaymentSDKError` if the operation fails
-    public func startCheckout(order: Order, callBacks: Callbacks, configuration: Configuration) async throws -> CheckoutSessionResponse {
+    public func startCheckout(order: Order, callBacks: Callbacks, configuration: Configuration, isNativeFlow: Bool? = nil) async throws -> CheckoutSessionResponse {
         let token = try await ensureToken()
-        let request = CheckoutRequest(order: order,callBacks: callBacks, configuration: configuration)
+        let request = CheckoutRequest(order: order, callBacks: callBacks, configuration: configuration, isNativeFlow: isNativeFlow)
         return try await Task.detached {
                 try await self.checkoutRepo.createSession(request: request, token: token)
             } .value

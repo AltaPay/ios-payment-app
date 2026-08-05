@@ -9,13 +9,15 @@ public struct CheckoutRequest: Codable, Sendable {
     public let order: Order
     public let callbacks: Callbacks
     public let configuration: Configuration
-    
+    public let isNativeFlow: Bool?
     public init(order: Order,
                 callBacks: Callbacks,
-                configuration: Configuration) {
+                configuration: Configuration,
+                isNativeFlow: Bool? = nil) {
         self.order = order
         self.callbacks = callBacks
         self.configuration = configuration
+        self.isNativeFlow = isNativeFlow
     }
 }
 
